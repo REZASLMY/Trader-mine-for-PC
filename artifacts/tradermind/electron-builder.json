@@ -31,9 +31,7 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "TraderMind OS",
-    "installerLanguages": ["PersianStandard", "English"],
-    "language": "1065"
+    "shortcutName": "TraderMind OS"
   },
   "mac": {
     "target": [
