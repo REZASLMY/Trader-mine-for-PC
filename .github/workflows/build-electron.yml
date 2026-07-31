@@ -64,8 +64,9 @@ jobs:
       - name: Build Windows Installer
         run: pnpm --filter @workspace/tradermind run electron:build:win
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          # بدون GH_TOKEN تا electron-builder خودش publish نکند
+          # انتشار توسط softprops/action-gh-release انجام می‌شود
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4

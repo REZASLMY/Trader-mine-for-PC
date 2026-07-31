@@ -1,7 +1,12 @@
 {
   "name": "@workspace/tradermind",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "ژورنال معاملاتی آفلاین TraderMind OS",
+  "author": "TraderMind <support@tradermind.app>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/REZASLMY/Trader-mine-for-PC.git"
+  },
   "private": true,
   "type": "module",
   "main": "electron/dist/main.js",
