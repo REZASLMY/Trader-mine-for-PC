@@ -17,7 +17,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "electron:build:vite": "vite build --config vite.electron.config.ts",
-    "electron:compile": "tsc --project tsconfig.electron.json",
+    "electron:compile": "tsc --project tsconfig.electron.json && node -e \"require('fs').writeFileSync('electron/dist/package.json', JSON.stringify({type:'commonjs'}))\"",
     "electron:build:win": "pnpm run electron:build:vite && pnpm run electron:compile && electron-builder --win --config electron-builder.json --publish never",
     "electron:build:mac": "pnpm run electron:build:vite && pnpm run electron:compile && electron-builder --mac --config electron-builder.json"
   },
