@@ -1,5 +1,10 @@
 import { app, BrowserWindow, shell, Menu } from 'electron';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// __dirname در ES Module وجود ندارد، باید دستی ساخته شود
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const isDev = !app.isPackaged;
 
@@ -15,7 +20,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false, // needed for file:// IndexedDB access
     },
-    icon: path.join(__dirname, '../public/icon.png'),
+    icon: path.join(__dirname, '../../public/icon.png'),
     title: 'TraderMind OS',
     backgroundColor: '#0f1117',
     show: false,
@@ -31,7 +36,15 @@ function createWindow() {
   // نمایش پنجره پس از آماده شدن (بدون flash سفید)
   win.once('ready-to-show', () => {
     win.show();
-    if (isDev) win.webContents.openDevTools();
+    win.webContents.openDevTools(); // موقتاً برای دیباگ همیشه باز شود
+  });
+
+  win.webContents.on('did-fail-load', (_e, errorCode, errorDescription, validatedURL) => {
+    console.error('LOAD FAILED:', errorCode, errorDescription, validatedURL);
+  });
+
+  win.webContents.on('console-message', (_e, level, message, line, sourceId) => {
+    console.log('[renderer]', level, message, `(${sourceId}:${line})`);
   });
 
   // باز کردن لینک‌های خارجی در مرورگر سیستم
