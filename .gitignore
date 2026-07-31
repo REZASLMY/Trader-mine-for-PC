@@ -47,3 +47,15 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Electron build outputs
+artifacts/tradermind/dist/
+artifacts/tradermind/dist-electron/
+artifacts/tradermind/electron/dist/
+
+# Uploaded source archives (not part of the project)
+attached_assets/
+
+# pnpm lockfile changes from local installs
+# (lockfile is committed but large partial installs can mutate it)
+
