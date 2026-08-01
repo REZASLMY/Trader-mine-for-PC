@@ -1,0 +1,136 @@
+name: Build TraderMind Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 1.2.0)'
+        required: false
+        default: '1.2.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-android-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-android-
+
+      - name: Install workspace dependencies (root)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install tradermind dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+        working-directory: artifacts/tradermind
+
+      - name: Build Vite (web assets for Capacitor)
+        run: pnpm --filter @workspace/tradermind run android:build:vite
+        env:
+          NODE_ENV: production
+
+      - name: Setup Android SDK build-tools
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "build-tools;35.0.0" \
+            "platforms;android-35" \
+            --sdk_root=$ANDROID_HOME 2>/dev/null || true
+
+      - name: Initialize Capacitor Android project
+        run: |
+          # اگر android/ وجود ندارد، آن را بساز
+          [ -d android ] || pnpm exec cap add android
+        working-directory: artifacts/tradermind
+
+      - name: Sync Capacitor (copy web assets → android/)
+        run: pnpm exec cap sync android
+        working-directory: artifacts/tradermind
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        working-directory: artifacts/tradermind/android
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('artifacts/tradermind/android/**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Android APK (debug)
+        run: ./gradlew assembleDebug --no-daemon
+        working-directory: artifacts/tradermind/android
+
+      - name: Rename APK
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION:-1.2.0}"
+          mv app/build/outputs/apk/debug/app-debug.apk \
+             app/build/outputs/apk/debug/TraderMind-${VERSION}-android.apk
+        working-directory: artifacts/tradermind/android
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TraderMind-Android-APK
+          path: artifacts/tradermind/android/app/build/outputs/apk/debug/TraderMind-*.apk
+          if-no-files-found: error
+
+      - name: Create / Update GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/tradermind/android/app/build/outputs/apk/debug/TraderMind-*.apk
+          name: "TraderMind OS ${{ github.ref_name }}"
+          body: |
+            ## TraderMind OS ${{ github.ref_name }}
+
+            ### 📱 نصب Android
+            فایل `TraderMind-*-android.apk` را دانلود و روی دستگاه Android نصب کنید.
+            > ⚠️ قبل از نصب، در تنظیمات → امنیت، «نصب از منابع ناشناخته» را فعال کنید.
+
+            ### 🖥️ نصب Windows
+            فایل `TraderMind-Setup-*.exe` را دانلود و اجرا کنید.
+
+            ### تغییرات
+            برای مشاهده تغییرات به [CHANGELOG.md](CHANGELOG.md) مراجعه کنید.
+          draft: false
+          prerelease: false
