@@ -1,16 +1,17 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "target": "es2020",
-    "outDir": "electron/dist",
-    "rootDir": "electron",
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "./electron/dist",
+    "rootDir": "./electron",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["electron/**/*.ts"],
-  "exclude": ["node_modules", "dist", "dist-electron"]
+  "include": [
+    "electron/**/*.ts"
+  ]
 }
