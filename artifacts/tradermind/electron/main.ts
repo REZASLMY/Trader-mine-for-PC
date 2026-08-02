@@ -1,10 +1,5 @@
 import { app, BrowserWindow, shell, Menu } from 'electron';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-// __dirname در ES Module وجود ندارد، باید دستی ساخته شود
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const isDev = !app.isPackaged;
 
