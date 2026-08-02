@@ -1,17 +1,16 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "outDir": "./electron/dist",
     "rootDir": "./electron",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": [
-    "electron/**/*.ts"
-  ]
+  "include": ["electron/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-electron"]
 }
