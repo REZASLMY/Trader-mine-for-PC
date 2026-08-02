@@ -22,11 +22,13 @@ function createWindow() {
   });
 
   // بارگذاری برنامه از dist
-  const indexPath = isDev
-    ? path.join(__dirname, '../dist/public/index.html')
-    : path.join(process.resourcesPath, 'app/dist/public/index.html');
+  // __dirname در dev = electron/dist/ و در prod = app.asar/electron/dist/
+  // دو سطح بالاتر = ریشه پروژه یا ریشه asar
+  const indexPath = path.join(__dirname, '../../dist/public/index.html');
 
-  win.loadFile(indexPath);
+  win.loadFile(indexPath).catch((err) => {
+    console.error('loadFile failed:', indexPath, err);
+  });
 
   // نمایش پنجره پس از آماده شدن (بدون flash سفید)
   win.once('ready-to-show', () => {
