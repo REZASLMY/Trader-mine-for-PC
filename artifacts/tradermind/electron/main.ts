@@ -33,7 +33,6 @@ function createWindow() {
   // نمایش پنجره پس از آماده شدن (بدون flash سفید)
   win.once('ready-to-show', () => {
     win.show();
-    win.webContents.openDevTools(); // موقتاً برای دیباگ همیشه باز شود
   });
 
   win.webContents.on('did-fail-load', (_e, errorCode, errorDescription, validatedURL) => {
